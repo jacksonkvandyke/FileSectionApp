@@ -66,7 +66,8 @@ def addwindowElements(window, fileData, fileDirectory):
     b5['bg'] = '#C5DAC1'
     l2['bg'] = "#A9B2AC"
 
-    #Link scrollbar to listbox
+    #Link scrollbar to listbox and add double click functionality
+    lb1.bind('<Double-Button-1>', lambda event: openFile(window, readFile(fileDirectory), lb1, fileDirectory, sectionFiles))
     lb1.config(yscrollcommand=sb1.set)
     sb1.config(command = lb1.yview) 
 
@@ -126,10 +127,11 @@ def addFile(window, data, listBox, fileDirectory):
     if newFile == None:
         return
     
-    #Add action to userAction stack
+    #Add action to userAction stack and clear redo stack
     prevData = json.dumps(data)
     action = UserAction(prevData)
     undoStack.append(action)
+    redoStack.clear()
     
     #Get current json data and add new data
     strippedName = os.path.basename(newFile.name).split(".", 1)[0]
@@ -142,10 +144,11 @@ def addFile(window, data, listBox, fileDirectory):
     
 def removeFile(window, data, listbox, fileDirectory, sectionFiles):
     try:
-        #Add action to userAction stack
+        #Add action to userAction stack and clear redo stack
         prevData = json.dumps(data)
         action = UserAction(prevData)
         undoStack.append(action)
+        redoStack.clear()
 
         #Remove the selected file from the listbox
         del data["files"][sectionFiles[listbox.curselection()[0]]]
