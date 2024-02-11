@@ -5,6 +5,17 @@ import createSectionRender
 import json
 import os
 
+#This variable will handle the undo button
+undoStack = []
+
+#Undo class: This will do the opposite command the user used to undo their command
+class UserAction:
+    def __init__(self, data):
+        self._data = data
+
+    def getData(self):
+        return self._data
+    
 
 def createWindow(data, dataDirectory):
     #Loaded json data
@@ -38,11 +49,11 @@ def addwindowElements(window, fileData, fileDirectory):
     b1 = Button(window, text="Open File", font=("Arial", 16), command=lambda: openFile(window, readFile(fileDirectory), lb1, fileDirectory, sectionFiles), width=20)
     b2 = Button(window, text="Add File", font=("Arial", 16), command=lambda: addFile(window, readFile(fileDirectory), lb1, fileDirectory), width=20)
     b3 = Button(window, text="Remove File", font=("Arial", 16), command=lambda: removeFile(window, readFile(fileDirectory), lb1, fileDirectory, sectionFiles), width=20)
-    b4 = Button(window, text="Undo", font=("Arial", 16), width=20)
+    b4 = Button(window, text="Undo", font=("Arial", 16), command=lambda: undoAction(window, fileDirectory), width=20)
     l2 = Label(window, text="Section Directory: " + fileDirectory, font=("Arial", 16))
 
     #Set background of elements
-    l1['bg'] = "#A9B2AC"
+    l1['bg'] = '#898980'
     lb1['bg'] = '#C5DAC1'
     b1['bg'] = '#C5DAC1'
     b2['bg'] = '#C5DAC1'
@@ -51,7 +62,7 @@ def addwindowElements(window, fileData, fileDirectory):
     l2['bg'] = "#A9B2AC"
 
     #Add elements to grid
-    l1.grid(column=0, row=0, padx=0, pady=30, columnspan=3)
+    l1.grid(column=0, row=0, padx=15, pady=30, columnspan=3)
     lb1.grid(column = 0, row=1, rowspan=4, pady=0, padx=0)
     b1.grid(column = 1, row=1, padx=0)
     b2.grid(column = 1, row=2, padx=0)
@@ -75,7 +86,7 @@ def addDataToListBox(data, listbox, fileDirectory, sectionFiles):
     files = data["files"]
     index = 0
     for file in files:
-        listbox.insert(index, file)
+        listbox.insert(index, files[file]["filename"])
         sectionFiles.append(file)
         index += 1
 
@@ -93,7 +104,7 @@ def openFile(window, data, listbox, fileDirectory, sectionFiles):
         return
     
     #Run file
-    os.startfile(file[1])
+    os.startfile(file["filepath"])
 
 
 def addFile(window, data, listBox, fileDirectory):
@@ -104,8 +115,14 @@ def addFile(window, data, listBox, fileDirectory):
     if newFile == None:
         return
     
+    #Add action to userAction stack
+    prevData = json.dumps(data)
+    action = UserAction(prevData)
+    undoStack.append(action)
+    
     #Get current json data and add new data
-    data["files"][os.path.basename(newFile.name)] = {"filename": os.path.basename(newFile.name), "filepath": newFile.name}
+    strippedName = os.path.basename(newFile.name).split(".", 1)[0]
+    data["files"][os.path.basename(newFile.name)] = {"filename": strippedName, "filepath": newFile.name}
     fileData = json.dumps(data)
 
     #Write the data and reload window
@@ -114,6 +131,11 @@ def addFile(window, data, listBox, fileDirectory):
     
 def removeFile(window, data, listbox, fileDirectory, sectionFiles):
     try:
+        #Add action to userAction stack
+        prevData = json.dumps(data)
+        action = UserAction(prevData)
+        undoStack.append(action)
+
         #Remove the selected file from the listbox
         del data["files"][sectionFiles[listbox.curselection()[0]]]
         fileData = json.dumps(data)
@@ -121,6 +143,23 @@ def removeFile(window, data, listbox, fileDirectory, sectionFiles):
         #Write the data and reload window
         writeFile(fileDirectory, fileData)
         addwindowElements(window, data, fileDirectory)
+    except:
+        lastAction = undoStack[-1]
+        undoStack.remove(lastAction)
+        return
+    
+def undoAction(window, fileDirectory):
+    try:
+        #Get last action
+        lastAction = undoStack[-1]
+        undoStack.remove(lastAction)
+
+        #Convert json data to previous state and update UI
+        data = lastAction.getData()
+        jsonData = json.loads(data)
+        writeFile(fileDirectory, data)
+        addwindowElements(window, jsonData, fileDirectory)
+        return
     except:
         return
 

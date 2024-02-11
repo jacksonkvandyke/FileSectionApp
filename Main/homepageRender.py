@@ -4,6 +4,7 @@ from tkinter.filedialog import askopenfile
 import createSectionRender
 import sectionviewerRender
 import json
+import os
 
 def createWindow():
     #Create window object
