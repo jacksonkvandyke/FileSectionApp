@@ -7,6 +7,7 @@ import os
 
 #This variable will handle the undo button
 undoStack = []
+redoStack = []
 
 #Undo class: This will do the opposite command the user used to undo their command
 class UserAction:
@@ -46,29 +47,39 @@ def addwindowElements(window, fileData, fileDirectory):
     #Create label elements
     l1 = Label(window, text="Current Section: " + fileData['filename'], font=("Arial", 60))
     lb1 = Listbox(window, font=("Arial", 16), width=40)
+    sb1 = Scrollbar(window)
     b1 = Button(window, text="Open File", font=("Arial", 16), command=lambda: openFile(window, readFile(fileDirectory), lb1, fileDirectory, sectionFiles), width=20)
     b2 = Button(window, text="Add File", font=("Arial", 16), command=lambda: addFile(window, readFile(fileDirectory), lb1, fileDirectory), width=20)
     b3 = Button(window, text="Remove File", font=("Arial", 16), command=lambda: removeFile(window, readFile(fileDirectory), lb1, fileDirectory, sectionFiles), width=20)
-    b4 = Button(window, text="Undo", font=("Arial", 16), command=lambda: undoAction(window, fileDirectory), width=20)
+    b4 = Button(window, text="Undo", font=("Arial", 16), command=lambda: undoAction(window, fileData, fileDirectory), width=20)
+    b5 = Button(window, text="Redo", font=("Arial", 16), command=lambda: redoAction(window, fileData, fileDirectory), width=20)
     l2 = Label(window, text="Section Directory: " + fileDirectory, font=("Arial", 16))
 
     #Set background of elements
     l1['bg'] = '#898980'
     lb1['bg'] = '#C5DAC1'
+    sb1['bg'] = '#C5DAC1'
     b1['bg'] = '#C5DAC1'
     b2['bg'] = '#C5DAC1'
     b3['bg'] = '#C5DAC1'
     b4['bg'] = '#C5DAC1'
+    b5['bg'] = '#C5DAC1'
     l2['bg'] = "#A9B2AC"
 
+    #Link scrollbar to listbox
+    lb1.config(yscrollcommand=sb1.set)
+    sb1.config(command = lb1.yview) 
+
     #Add elements to grid
-    l1.grid(column=0, row=0, padx=15, pady=30, columnspan=3)
-    lb1.grid(column = 0, row=1, rowspan=4, pady=0, padx=0)
-    b1.grid(column = 1, row=1, padx=0)
-    b2.grid(column = 1, row=2, padx=0)
-    b3.grid(column = 1, row=3, padx=0)
-    b4.grid(column = 1, row=4, padx=0)
-    l2.grid(column=0, row=5, pady=30, padx=0, columnspan=3)
+    l1.grid(column=0, row=0, padx=15, pady=30, columnspan=4)
+    lb1.grid(column = 0, row=1, rowspan=5, pady=0, padx=0)
+    sb1.grid(column=1, row=1, rowspan=5, sticky="ns")
+    b1.grid(column = 2, row=1, padx=0)
+    b2.grid(column = 2, row=2, padx=0)
+    b3.grid(column = 2, row=3, padx=0)
+    b4.grid(column = 2, row=4, padx=0)
+    b5.grid(column = 2, row=5, padx=0)
+    l2.grid(column=0, row=6, pady=30, padx=0, columnspan=3)
 
     #Add data to listbox
     addDataToListBox(readFile(fileDirectory), lb1, fileDirectory, sectionFiles)
@@ -148,11 +159,34 @@ def removeFile(window, data, listbox, fileDirectory, sectionFiles):
         undoStack.remove(lastAction)
         return
     
-def undoAction(window, fileDirectory):
+def undoAction(window, fileData, fileDirectory):
     try:
         #Get last action
         lastAction = undoStack[-1]
         undoStack.remove(lastAction)
+
+        #Add to redostack
+        jsonString = json.dumps(fileData)
+        redoStack.append(UserAction(jsonString))
+
+        #Convert json data to previous state and update UI
+        data = lastAction.getData()
+        jsonData = json.loads(data)
+        writeFile(fileDirectory, data)
+        addwindowElements(window, jsonData, fileDirectory)
+        return
+    except:
+        return
+    
+def redoAction(window, fileData, fileDirectory):
+    try:
+        #Get last action
+        lastAction = redoStack[-1]
+        redoStack.remove(lastAction)
+
+        #Add to undostack
+        jsonString = json.dumps(fileData)
+        undoStack.append(UserAction(jsonString))
 
         #Convert json data to previous state and update UI
         data = lastAction.getData()
