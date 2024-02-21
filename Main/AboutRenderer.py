@@ -19,7 +19,7 @@ def createWindow():
 def addwindowElements(window):
     #Description text
     aboutText = "The Librarian is a simple, safe, and easy to pick up software designed to make managing files easier. This software allows you to store easy access to any file throughout your system in one area. "
-    whyText = "The Librarian allows files in different locations to be accessed easily in one location. This allows you to do multiple things including save space, save time, and prevent the possible dangers when moving files."
+    whyText = "The Librarian allows files in different locations to be accessed easily in one location. This allows you to do multiple things including save space, save time, and prevent the possible dangers when moving files. The Librarian also includes an Undo/Redo functionality to increase workflow and allow the user to prevent possible mistakes."
 
     #Create window elements
     l1 = Label(window, text="About", font=("Arial", 45))
