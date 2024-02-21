@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import ttk
 
-import DetailedAbout
+import detailedAboutRenderer
 
 def createWindow():
     #Create window object
@@ -29,7 +29,7 @@ def addwindowElements(window):
 
     l3 = Label(window, text="Why should you use The Librarian?", font=("Arial", 26))
     t2 = Label(window, text=whyText, font=("Arial", 16), wraplength=600)
-    b1 = Button(window, text="Learn More", font=("Arial", 24), command=DetailedAbout.createWindow)
+    b1 = Button(window, text="Learn More", font=("Arial", 24), command=detailedAboutRenderer.createWindow)
 
     #Set colors for elements
     l1['bg'] = '#898980'

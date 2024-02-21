@@ -4,7 +4,7 @@ from tkinter.filedialog import askopenfile
 import createSectionRender
 import sectionviewerRender
 
-import AboutRenderer
+import aboutRenderer
 
 import json
 import os
@@ -39,7 +39,7 @@ def addwindowElements(window, fileContents, fileDirectory):
     b1 = Button(window, text="Create Section", font=("Arial", 32), command=createSectionRender.createWindow, width=15)
     b2 = Button(window, text="Load Section", font=("Arial", 32), command=lambda: loadSection(window, validText, l2, fileContents, fileDirectory), width=15)
     l2 = Label(window, textvariable=validText, font=("Arial", 16))
-    b3 = Button(window, text="About The Librarian", font=("Arial", 20), command= AboutRenderer.createWindow)
+    b3 = Button(window, text="About The Librarian", font=("Arial", 20), command= aboutRenderer.createWindow)
 
     #Set colors for elements
     l1['bg'] = '#898980'

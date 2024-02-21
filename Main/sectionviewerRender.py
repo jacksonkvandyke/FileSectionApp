@@ -1,7 +1,10 @@
 from tkinter import *
 from tkinter import ttk
 from tkinter.filedialog import askopenfile
+
 import createSectionRender
+import helpRenderer
+
 import json
 import os
 
@@ -54,6 +57,7 @@ def addwindowElements(window, fileData, fileDirectory):
     b4 = Button(window, text="Undo", font=("Arial", 16), command=lambda: undoAction(window, fileData, fileDirectory), width=20)
     b5 = Button(window, text="Redo", font=("Arial", 16), command=lambda: redoAction(window, fileData, fileDirectory), width=20)
     l2 = Label(window, text="Section Directory: " + fileDirectory, font=("Arial", 16))
+    b6 = Button(window, text="Help", font=("Arial", 16), command=helpRenderer.createWindow)
 
     #Set background of elements
     l1['bg'] = '#898980'
@@ -65,6 +69,7 @@ def addwindowElements(window, fileData, fileDirectory):
     b4['bg'] = '#C5DAC1'
     b5['bg'] = '#C5DAC1'
     l2['bg'] = "#A9B2AC"
+    b6['bg'] = '#C5DAC1'
 
     #Link scrollbar to listbox and add double click functionality
     lb1.bind('<Double-Button-1>', lambda event: openFile(window, readFile(fileDirectory), lb1, fileDirectory, sectionFiles))
@@ -80,7 +85,8 @@ def addwindowElements(window, fileData, fileDirectory):
     b3.grid(column = 2, row=3, padx=0)
     b4.grid(column = 2, row=4, padx=0)
     b5.grid(column = 2, row=5, padx=0)
-    l2.grid(column=0, row=6, pady=30, padx=0, columnspan=3)
+    l2.grid(column=0, row=7, pady=30, padx=0, columnspan=3)
+    b6.grid(column = 2, row=6, padx=0)
 
     #Add data to listbox
     addDataToListBox(readFile(fileDirectory), lb1, fileDirectory, sectionFiles)
