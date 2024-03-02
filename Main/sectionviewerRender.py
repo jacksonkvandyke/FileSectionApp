@@ -4,11 +4,12 @@ from tkinter.filedialog import askopenfile
 
 import createSectionRender
 import helpRenderer
+from microserviceConnection import MicroserviceConnection
 
 import json
 import os
 
-#This variable will handle the undo button
+#These variables will handle the undo and redo stacks
 undoStack = []
 redoStack = []
 
@@ -20,6 +21,8 @@ class UserAction:
     def getData(self):
         return self._data
     
+#Microservice class handle
+microservice = MicroserviceConnection()
 
 def createWindow(data, dataDirectory):
     #Loaded json data
@@ -32,6 +35,9 @@ def createWindow(data, dataDirectory):
     #Specify window constraints
     window.config(width="1000", height="600", bg="#A9B2AC")
     window.title("The Librarian")
+
+    #Connect to microservice
+    microservice.ConnectService()
     
     #Add window elements
     addwindowElements(window, fileData, fileDirectory)
@@ -217,5 +223,6 @@ def writeFile(fileDirectory, data):
     fileWrite = open(fileDirectory, 'w')
     fileWrite.write(data)
     fileWrite.close()
+    
 
     
