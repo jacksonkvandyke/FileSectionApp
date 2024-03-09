@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter import messagebox
 from tkinter.filedialog import askopenfile
 
 import createSectionRender
@@ -35,15 +36,16 @@ def createWindow(data, dataDirectory):
     #Specify window constraints
     window.config(width="1000", height="600", bg="#A9B2AC")
     window.title("The Librarian")
-
-    #Connect to microservice
-    microservice.ConnectService()
     
     #Add window elements
     addwindowElements(window, fileData, fileDirectory)
     
     #Launch window
     window.mainloop()
+
+    #Close the running microservice
+    microservice.service.kill()
+
 
 def addwindowElements(window, fileData, fileDirectory):
     #Clear all child elements of frame on load
@@ -64,6 +66,8 @@ def addwindowElements(window, fileData, fileDirectory):
     b5 = Button(window, text="Redo", font=("Arial", 16), command=lambda: redoAction(window, fileData, fileDirectory), width=20)
     l2 = Label(window, text="Section Directory: " + fileDirectory, font=("Arial", 16))
     b6 = Button(window, text="Help", font=("Arial", 16), command=helpRenderer.createWindow)
+    b7 = Button(window, text="Save Externally", font=("Arial", 16), command=lambda: SaveExternally(window, fileData, lb1, fileDirectory, sectionFiles),width=20)
+    b8 = Button(window, text="Retrieve Externally", font=("Arial", 16), command=lambda: RetrieveExternally(window, fileData, lb1, fileDirectory, sectionFiles), width=20)
 
     #Set background of elements
     l1['bg'] = '#898980'
@@ -76,6 +80,8 @@ def addwindowElements(window, fileData, fileDirectory):
     b5['bg'] = '#C5DAC1'
     l2['bg'] = "#A9B2AC"
     b6['bg'] = '#C5DAC1'
+    b7['bg'] = '#C5DAC1'
+    b8['bg'] = '#C5DAC1'
 
     #Link scrollbar to listbox and add double click functionality
     lb1.bind('<Double-Button-1>', lambda event: openFile(window, readFile(fileDirectory), lb1, fileDirectory, sectionFiles))
@@ -84,15 +90,17 @@ def addwindowElements(window, fileData, fileDirectory):
 
     #Add elements to grid
     l1.grid(column=0, row=0, padx=15, pady=30, columnspan=4)
-    lb1.grid(column = 0, row=1, rowspan=5, pady=0, padx=0)
-    sb1.grid(column=1, row=1, rowspan=5, sticky="ns")
+    lb1.grid(column = 0, row=1, rowspan=7, pady=0, padx=0)
+    sb1.grid(column=1, row=1, rowspan=7, sticky="ns")
     b1.grid(column = 2, row=1, padx=0)
     b2.grid(column = 2, row=2, padx=0)
     b3.grid(column = 2, row=3, padx=0)
     b4.grid(column = 2, row=4, padx=0)
     b5.grid(column = 2, row=5, padx=0)
-    l2.grid(column=0, row=7, pady=30, padx=0, columnspan=3)
-    b6.grid(column = 2, row=6, padx=0)
+    b6.grid(column = 2, row=8, padx=0)
+    b7.grid(column = 2, row=6, padx = 0)
+    b8.grid(column = 2, row=7, padx = 0)
+    l2.grid(column=0, row=9, pady=30, padx=0, columnspan=5)
 
     #Add data to listbox
     addDataToListBox(readFile(fileDirectory), lb1, fileDirectory, sectionFiles)
@@ -223,6 +231,41 @@ def writeFile(fileDirectory, data):
     fileWrite = open(fileDirectory, 'w')
     fileWrite.write(data)
     fileWrite.close()
+
+def SaveExternally(window, data, listbox, fileDirectory, sectionFiles):
+    # Saves the file externally  to database
+    try:
+        file = data["files"][sectionFiles[listbox.curselection()[0]]]
+        print(file)
+
+        #First start connection
+        microservice.ConnectService()
+
+        #Save to database
+        microservice.SaveFile(file["filepath"])
+
+        #Display alert window that file was saved
+        messagebox.showinfo("The Librarian", "File succesfully saved externally.")
+    except:
+        return
+    
+def RetrieveExternally(window, data, listbox, fileDirectory, sectionFiles):
+    # Retrieves the file externally  to database
+    try:
+        file = data["files"][sectionFiles[listbox.curselection()[0]]]
+        print(file)
+
+        #First start connection
+        microservice.ConnectService()
+
+        #Save to database
+        microservice.RetrieveFile(file["filepath"])
+
+        #Display alert window that file was saved
+        messagebox.showinfo("The Librarian", "File succesfully retrieved externally.")
+    except:
+        return
+
     
 
     
