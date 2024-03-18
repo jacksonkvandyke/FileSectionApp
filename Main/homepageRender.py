@@ -27,7 +27,6 @@ def createWindow():
 
     #Send data to section viewer if possible
     if (fileContents.get() != "None"):
-        window.destroy()
         sendData(fileContents, fileDirectory)
 
 def addwindowElements(window, fileContents, fileDirectory):
@@ -71,7 +70,7 @@ def loadSection(window, validText, validLabel, fileContents, fileDirectory):
             print(toJson['isfilesortFile'])
 
             #Quit window and load in section viewer
-            window.quit()
+            window.destroy()
         except:
             validText.set("That file is not compatable.")
             validLabel.grid(column=0, row=3)
